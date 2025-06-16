@@ -32,7 +32,7 @@ float fBm(vec2 p, int octaves) {
 }
 
 void main() {
-    // Wave parameters
+    // Parametri talasni
     float amplitude = u_waveHeight;
     float speed = u_waveSpeed * 0.5;
     float steepness = u_waveSteepness;
@@ -52,21 +52,21 @@ void main() {
     float waveFactor1 = dot(waveDir1, pos) * 4.0 + u_time * speed;
     float sinWave1 = sin(waveFactor1);
     float cosWave1 = cos(waveFactor1);
-    gerstnerOffset.xz += steepness * waveDir1 * cosWave1;
+    
     gerstnerOffset.y += amplitude * sinWave1;
     
     // Second wave
     float waveFactor2 = dot(waveDir2, pos) * 6.0 + u_time * speed * 1.3;
     float sinWave2 = sin(waveFactor2);
     float cosWave2 = cos(waveFactor2);
-    gerstnerOffset.xz += steepness * waveDir2 * cosWave2 * 0.7;
+
     gerstnerOffset.y += amplitude * sinWave2 * 0.7;
     
     // Third wave
     float waveFactor3 = dot(waveDir3, pos) * 8.0 + u_time * speed * 0.7;
     float sinWave3 = sin(waveFactor3);
     float cosWave3 = cos(waveFactor3);
-    gerstnerOffset.xz += steepness * waveDir3 * cosWave3 * 0.5;
+   
     gerstnerOffset.y += amplitude * sinWave3 * 0.5;
     
     // Add surface noise for realism
