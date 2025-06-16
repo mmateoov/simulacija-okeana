@@ -11,7 +11,13 @@ async function main() {
     const vertices = await WebGLUtils.loadOBJ("../cube.obj", true);
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl");
 
-    const { modelMat, viewMat, projectionMat } = WebGLUtils.createModelViewProjection(gl, [2, 2, 5]);
+    let cameraX = 2; // x koordinata kamere
+    let cameraY = 2; // y koordinata kamere
+    let cameraZ = 5; // z kooordinata kamere
+
+    let cameraPosition = [cameraX, cameraY, cameraZ] // startna pozicija kamere
+
+    const { modelMat, viewMat, projectionMat } = WebGLUtils.createModelViewProjection(gl, cameraPosition);
     const mvpMat = mat4.create();
     mat4.multiply(mvpMat, projectionMat, viewMat);
     mat4.multiply(mvpMat, mvpMat, modelMat);
