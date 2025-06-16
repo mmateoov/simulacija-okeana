@@ -8,7 +8,7 @@ async function main() {
 
     WebGLUtils.resizeCanvasToWindow(gl);
 
-    const vertices = await WebGLUtils.loadOBJ("../cube.obj", true);
+    const vertices = await WebGLUtils.loadOBJ("../okeanPlatforma.obj", true);
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl");
 
     const u_mvpLocation = gl.getUniformLocation(program, "u_mvp");
@@ -17,9 +17,9 @@ async function main() {
     const waveSpeedLocation = gl.getUniformLocation(program, "u_waveSpeed");
     const waveSteepnessLocation = gl.getUniformLocation(program, "u_waveSteepness");
 
-    const waveHeight = 0.3;
-    const waveSpeed = 2.0;
-    const waveSteepness = 0.5;
+    const waveHeight = 0.08;
+    const waveSpeed = 2;
+    const waveSteepness = 1;
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     const startTime = Date.now();
