@@ -11,6 +11,37 @@ const WebGLUtils = {
 
 		return gl;
 	},
+	// Add to WebGLUtils.js
+	createGrid(width, depth, subdivisions) {
+    	const positions = [];
+    	const stepX = width / subdivisions;
+		const stepZ = depth / subdivisions;
+    	const halfWidth = width / 2;
+    	const halfDepth = depth / 2;
+    
+    for (let z = 0; z <= subdivisions; z++) {
+        for (let x = 0; x <= subdivisions; x++) {
+            const xPos = -halfWidth + x * stepX;
+            const zPos = -halfDepth + z * stepZ;
+            positions.push(xPos, 0, zPos);
+        }
+    }
+    
+    const indices = [];
+    for (let z = 0; z < subdivisions; z++) {
+        for (let x = 0; x < subdivisions; x++) {
+            const topLeft = z * (subdivisions + 1) + x;
+            const topRight = topLeft + 1;
+            const bottomLeft = (z + 1) * (subdivisions + 1) + x;
+            const bottomRight = bottomLeft + 1;
+            
+            indices.push(topLeft, bottomLeft, topRight);
+            indices.push(topRight, bottomLeft, bottomRight);
+        }
+    }
+    
+    return { positions, indices };
+},
 
 	resizeCanvasToWindow(gl) {
 		gl.canvas.width = window.innerWidth;
