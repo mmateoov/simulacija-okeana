@@ -11,7 +11,7 @@ async function main() {
   WebGLUtils.resizeCanvasToWindow(gl);
 
     const vertices = await WebGLUtils.loadOBJ("../okeanPlatforma-popravka.obj", true); // ucitavanje tacaka iz obj fajla
-    const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl"); // učitava šejdere
+    const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fragment-shader.glsl"); // učitava šejdere
 
     // Kamera
     const cameraPosition = vec3.fromValues(0, 1.5, -5); // fiksna početna pozicija
