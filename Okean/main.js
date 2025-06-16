@@ -6,19 +6,19 @@ async function main() {
     const gl = WebGLUtils.initWebGL();
     WebGLUtils.resizeCanvasToWindow(gl); // Prilagođava veličinu kanvasa na veličinu prozora
 
-    const vertices = await WebGLUtils.loadOBJ("../cube.obj", true); // ucitavanje tacaka iz obj fajla
+    const vertices = await WebGLUtils.loadOBJ("../okeanPlatforma-popravka.obj", true); // ucitavanje tacaka iz obj fajla
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl"); // učitava šejdere
 
     // Kamera
-    const cameraPosition = vec3.fromValues(0, 0, 10); // fiksna početna pozicija
+    const cameraPosition = vec3.fromValues(0, 1.5, -5); // fiksna početna pozicija
     let horizontalRot = 0;          // horizontalna rotacija kamere
-    let tilt = 10;                  // pocetan tilt kamere
+    let tilt = 0;                  // pocetan tilt kamere
 
-    const tiltSpeed = 0.2;          // brzina tiltovanja po kliku
-    const rotationSpeed = 0.02;     // brzina horizontalne rotacije po kliku
-    const moveSpeed = 0.2
+    const tiltSpeed = 10;          // brzina tiltovanja po kliku
+    const rotationSpeed = 10;     // brzina horizontalne rotacije po kliku
+    const moveSpeed = 100;
 
-    const worldSize = 1000;         // veličina sveta koji rendujemo
+    const worldSize = 1000;        // veličina sveta koji rendujemo
 
     // Učitavanje u buffer
     const VAO = WebGLUtils.createVAO(gl, program, vertices, 8, [
@@ -54,7 +54,7 @@ async function main() {
 
         // Postavlja prespektivu kamere
         const projectionMat = mat4.create();
-        mat4.perspective(projectionMat, Math.PI / 4, gl.canvas.width / gl.canvas.height, 0.1, worldSize);
+        mat4.perspective(projectionMat, Math.PI / 3, gl.canvas.width / gl.canvas.height, 0.1, worldSize);
 
         // Matrica koja spaja sve u jednu
         const mvpMat = mat4.create();
