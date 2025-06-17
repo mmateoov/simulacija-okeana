@@ -55,12 +55,12 @@ async function main() {
     let horizontalRot = 0;
     let tilt = 10;
     const rotationSpeed = 1;
-    const moveSpeed = 5;
+    const moveSpeed = 10;
     const worldSize = 10000;
 
     // Generate grid plane
     const gridSize = 100;
-    const scale = 5;
+    const scale = 2;
     const vertices = [];
     for (let z = 0; z < gridSize; z++) {
         for (let x = 0; x < gridSize; x++) {
@@ -166,7 +166,7 @@ async function main() {
 
     const waveHeight = 2.2;
     const waveSpeed = 2;
-    const waveSteepness = 0.05;
+    const waveSteepness = 0.01;
 
     const lightDirectionLocation = gl.getUniformLocation(program, "u_light_direction");
     const lightColorLocation = gl.getUniformLocation(program, "u_light_color");
