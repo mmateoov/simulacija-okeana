@@ -4,30 +4,38 @@ import WebGLUtils from '../WebGLUtils.js';
 async function main() {
   /** @type {WebGLRenderingContext} */
   const gl = WebGLUtils.initWebGL();
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
-  gl.cullFace(gl.BACK);
+//   gl.enable(gl.DEPTH_TEST);
+//   gl.enable(gl.CULL_FACE);
+//   gl.cullFace(gl.BACK);
 
   WebGLUtils.resizeCanvasToWindow(gl);
 
-    const vertices = await WebGLUtils.loadOBJ("../okeanPlatforma-popravka.obj", true); // ucitavanje tacaka iz obj fajla
+    const vertices = await WebGLUtils.loadOBJ("../cube.obj", true); // ucitavanje tacaka iz obj fajla
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fragment-shader.glsl"); // učitava šejdere
+
 
     // Kamera
     const cameraPosition = vec3.fromValues(0, 1.5, -5); // fiksna početna pozicija
     let horizontalRot = 0;          // horizontalna rotacija kamere
     let tilt = 0;                  // pocetan tilt kamere
 
-    const tiltSpeed = 10;          // brzina tiltovanja po kliku
-    const rotationSpeed = 10;     // brzina horizontalne rotacije po kliku
-    const moveSpeed = 100;
+    const tiltSpeed = 0.02;          // brzina tiltovanja po kliku
+    const rotationSpeed = 0.2;     // brzina horizontalne rotacije po kliku
+    const moveSpeed = 2;
 
     const worldSize = 1000;        // veličina sveta koji rendujemo
 
     // Učitavanje u buffer
     const VAO = WebGLUtils.createVAO(gl, program, vertices, 8, [
         { name: "in_position", size: 3, offset: 0 },
+        { name: "in_normal", size:3,offset:5},
     ]);
+
+    const ambient_color = vec3.fromValues(1.0,1.0,1.0);
+    const light_color = vec3.fromValues(1.0,1.0,1.0);
+    const light_direction = vec3.fromValues(1.0, 1.0, 1.0);
+    
+    
 
     function render() {
         
@@ -50,7 +58,7 @@ async function main() {
 
         // Skaliranje objekta do horizonta
         const modelMat = mat4.create();
-        mat4.scale(modelMat, modelMat, [worldSize, 1, worldSize]);
+        mat4.scale(modelMat, modelMat, [1, 1, 1]);
 
         // Postavljena kamera u 3D prostoru
         const viewMat = mat4.create();
@@ -65,7 +73,12 @@ async function main() {
         mat4.multiply(mvpMat, projectionMat, viewMat);
         mat4.multiply(mvpMat, mvpMat, modelMat);
 
+        
+
         WebGLUtils.setUniformMatrix4fv(gl, program, ["u_mvp"], [mvpMat]);
+        WebGLUtils.setUniform3f(gl,program,["u_view_direction","u_ambient_color", "u_light_color", "u_light_direction"],[forward,ambient_color,light_color,light_direction]);
+        
+
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
