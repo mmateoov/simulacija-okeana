@@ -17,10 +17,10 @@ void main() {
 	vec3 viewSource = normalize(u_view_direction);
 	vec3 reflectDir = reflect(-u_light_direction, v_normal);
 	float specularStrength = max(dot(viewSource, reflectDir), 0.0);
-	specularStrength = pow(specularStrength, 32.0); // Shininess factor
+	specularStrength = pow(specularStrength, 55.0); // Shininess factor
 	vec3 specular = specularStrength * u_light_color;
 
 	vec3 ligthning = ambient + diffuse + specular;
 	vec3 modelColor = vec3(0.15f, 0.0f, 0.65f); // Example color
-	out_color = vec4(ligthning *modelColor, 1.0);
+	out_color = vec4(ligthning *modelColor, 1);
 }

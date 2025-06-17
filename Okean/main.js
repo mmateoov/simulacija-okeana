@@ -51,16 +51,16 @@ async function main() {
     WebGLUtils.resizeCanvasToWindow(gl);
 
     // Camera setup
-    const cameraPosition = vec3.fromValues(2, 15, 15);
+    const cameraPosition = vec3.fromValues(2, 5, 15);
     let horizontalRot = 0;
     let tilt = 10;
-    const rotationSpeed = 2;
-    const moveSpeed = 50;
-    const worldSize = 1000;
+    const rotationSpeed = 1;
+    const moveSpeed = 5;
+    const worldSize = 10000;
 
     // Generate grid plane
     const gridSize = 100;
-    const scale = 50;
+    const scale = 5;
     const vertices = [];
     for (let z = 0; z < gridSize; z++) {
         for (let x = 0; x < gridSize; x++) {
@@ -100,6 +100,7 @@ async function main() {
          1, -1, -1,  -1, -1,  1,   1, -1,  1
     ]);
 
+
     // Create skybox shader program
     const skyboxProgram = await WebGLUtils.createProgram(gl, "./skybox/vertex-shader.glsl", "./skybox/fragment-shader.glsl");
 
@@ -130,8 +131,6 @@ async function main() {
     // Main shader program for grid
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl");
     
-    
-  
     
     // Create VAO
     const VAO = gl.createVertexArray();
@@ -165,8 +164,8 @@ async function main() {
     const waveSpeedLocation = gl.getUniformLocation(program, "u_waveSpeed");
     const waveSteepnessLocation = gl.getUniformLocation(program, "u_waveSteepness");
 
-    const waveHeight = 0.1;
-    const waveSpeed = 1;
+    const waveHeight = 2.2;
+    const waveSpeed = 2;
     const waveSteepness = 0.05;
 
     const lightDirectionLocation = gl.getUniformLocation(program, "u_light_direction");
@@ -252,7 +251,7 @@ async function main() {
 
         // --- Render main scene (grid) first ---
         const modelMat = mat4.create();
-        mat4.scale(modelMat, modelMat, [2, 1, 2]);
+        mat4.scale(modelMat, modelMat, [50, 1, 50]);
 
         const mvpMat = mat4.create();
         mat4.multiply(mvpMat, projectionMat, viewMat);
