@@ -19,13 +19,13 @@ async function main() {
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fragment-shader.glsl"); // učitava šejdere
 
     // Kamera
-    const cameraPosition = vec3.fromValues(0, 0, 10); // fiksna početna pozicija
+    const cameraPosition = vec3.fromValues(10, 10, 10); // fiksna početna pozicija
     let horizontalRot = 0;          // horizontalna rotacija kamere
     let tilt = 10;                  // pocetan tilt kamere
 
-    const tiltSpeed = 0.2;          // brzina tiltovanja po kliku
-    const rotationSpeed = 0.02;     // brzina horizontalne rotacije po kliku
-    const moveSpeed = 0.2
+    const tiltSpeed = 10;          // brzina tiltovanja po kliku
+    const rotationSpeed = 2;     // brzina horizontalne rotacije po kliku
+    const moveSpeed = 5;
 
     const worldSize = 1000;         // veličina sveta koji rendujemo
 
@@ -40,10 +40,10 @@ async function main() {
         { name: "in_normal", size: 3, offset: 5 },
     ]);
 
-    WebGLUtils.setUniformMatrix4fv(gl, program,
-    ["u_model", "u_view", "u_projection"],
-    [modelMat, viewMat, projectionMat]
-  );
+  //   WebGLUtils.setUniformMatrix4fv(gl, program,
+  //   ["u_model", "u_view", "u_projection"],
+  //   [modelMat, viewMat, projectionMat]
+  // );
 
     function render() {
         
@@ -144,6 +144,8 @@ document.addEventListener('keydown', function (event) {
         vec3.scale(move, upVector, tiltSpeed);
         vec3.sub(cameraPosition, cameraPosition, move);
     }
+
+    console.log("Camera at:", cameraPosition[0], cameraPosition[1], cameraPosition[2]);
 
     render(); // Ponovo iscrtava scenu sa novom pozicijom/rotacijom kamere
 });
