@@ -40,6 +40,11 @@ async function main() {
         { name: "in_normal", size: 3, offset: 5 },
     ]);
 
+    WebGLUtils.setUniformMatrix4fv(gl, program,
+    ["u_model", "u_view", "u_projection"],
+    [modelMat, viewMat, projectionMat]
+  );
+
     function render() {
         
         // Ograničava tilt da bi se sprečio gimbal lock
@@ -69,8 +74,10 @@ async function main() {
         mat4.perspective(projectionMat, Math.PI / 4, gl.canvas.width / gl.canvas.height, 0.1, worldSize);
 
         // Matrica koja spaja sve u jednu
+        const mvpMat = mat4.create();
         mat4.multiply(mvpMat, projectionMat, viewMat);
-        mat4.multiply(mvpMat, mvpMat, modelMat);
+        mat4.multiply(mvpMat, mvpMat, modelMat);// Skaliranje objekta do horizonta
+        
 
         WebGLUtils.setUniformMatrix4fv(gl, program, ["u_mvp"], [mvpMat]);
 
