@@ -5,6 +5,8 @@ async function main() {
     
     const gl = WebGLUtils.initWebGL();    
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
     WebGLUtils.resizeCanvasToWindow(gl);
 
     // Camera setup
@@ -17,7 +19,7 @@ async function main() {
     const worldSize = 1000;
 
     // Generate grid plane
-    const gridSize = 10;
+    const gridSize = 100;
     const scale = 5;
     const vertices = [];
     
@@ -55,11 +57,14 @@ async function main() {
     // Shader setup
     
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl");
-   
+    
+    
+  
     
     // Create VAO
     const VAO = gl.createVertexArray();
     gl.bindVertexArray(VAO);
+    
 
     // Vertex buffer
     const vertexBuffer = gl.createBuffer();
@@ -97,11 +102,21 @@ async function main() {
     const waveSpeedLocation = gl.getUniformLocation(program, "u_waveSpeed");
     const waveSteepnessLocation = gl.getUniformLocation(program, "u_waveSteepness");
 
-    const waveHeight = 0.5;
+    const waveHeight = 0.08;
     const waveSpeed = 1;
-    const waveSteepness = 0.1;
+    const waveSteepness = 0.05;
 
-    gl.clearColor(0, 0, 0, 0); // Blue background for visibility
+    const lightDirectionLocation = gl.getUniformLocation(program, "u_light_direction");
+    const lightColorLocation = gl.getUniformLocation(program, "u_light_color");
+    const ambientColorLocation = gl.getUniformLocation(program, "u_ambient_color");
+
+    const lightDir = vec3.fromValues(0.0, 5.0, 0.0); // Light direction
+    const lightColor = vec3.fromValues(1.0, 1.0, 1.0); // White light color
+    const ambientColor = vec3.fromValues(0.2, 0.2, 0.2); // Ambient light color
+    const cameraPositionLocation = gl.getUniformLocation(program, "u_cameraPosition");
+    vec3.normalize(lightDir, lightDir);
+
+    gl.clearColor(1.0, 0, 0, 0); // Blue background for visibility
     const startTime = performance.now();
     
 
@@ -149,6 +164,7 @@ async function main() {
     
     function render() {
         let currentTime = performance.now();
+
         let deltaTime = (currentTime - lastFrameTime) / 1000;
         lastFrameTime = currentTime;
         
@@ -188,7 +204,7 @@ async function main() {
 
         // Clear with visible color
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        
+        gl.clearColor(0.1, 0.1, 0.1, 1.0); // Dark background for contrast
         gl.useProgram(program);
         
         // Set uniforms only if locations exist
@@ -198,6 +214,11 @@ async function main() {
         gl.uniform1f(waveHeightLocation, waveHeight);
         gl.uniform1f(waveSpeedLocation, waveSpeed);
         gl.uniform1f(waveSteepnessLocation, waveSteepness);
+        gl.uniform3fv(lightDirectionLocation, lightDir);
+        gl.uniform3fv(lightColorLocation, lightColor);
+        gl.uniform3fv(ambientColorLocation, ambientColor);
+        gl.uniform3fv(cameraPositionLocation, cameraPosition);
+        
         
         gl.bindVertexArray(VAO);
         

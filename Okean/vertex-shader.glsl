@@ -8,73 +8,86 @@ uniform float u_waveSpeed;
 uniform float u_waveSteepness;
 
 in vec3 in_position;
+in vec3 in_normal;
+in vec2 in_texCoord;
 
-// Simple pseudo-random function for noise
-float rand(vec2 co) {
-    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
-}
+out vec3 v_position;
+out vec3 v_normal;
+out vec2 v_texCoord;
 
-// Fractional Brownian Motion (fBm) for wave surface variation
-float fBm(vec2 p, int octaves) {
-    float total = 0.0;
-    float frequency = 1.0;
-    float amplitude = 0.5;
-    float maxAmplitude = 0.0;
+// Gerstner wave function with derivatives
+void gerstnerWave(in vec2 pos, in vec2 dir, in float amplitude, in float steepness, in float frequency, in float speed,
+                  out vec3 displacement, out vec3 dD_dx, out vec3 dD_dz) {
+    float phase = frequency * dot(dir, pos) + u_time * speed;
+    float c = cos(phase);
+    float s = sin(phase);
+    float QA = steepness * amplitude;
+
+    // Displacement
+    displacement.x = QA * dir.x * c;
+    displacement.y = amplitude * s;
+    displacement.z = QA * dir.y * c;
+
+    // Derivatives
+    float dPhase_dx = frequency * dir.x;
+    float dPhase_dz = frequency * dir.y;
     
-    for (int i = 0; i < octaves; i++) {
-        total += amplitude * rand(p * frequency);
-        maxAmplitude += amplitude;
-        amplitude *= 0.5;
-        frequency *= 2.0;
-    }
+    dD_dx.x = -QA * dir.x * dPhase_dx * s;
+    dD_dx.y = amplitude * dPhase_dx * c;
+    dD_dx.z = -QA * dir.y * dPhase_dx * s;
     
-    return total / maxAmplitude;
+    dD_dz.x = -QA * dir.x * dPhase_dz * s;
+    dD_dz.y = amplitude * dPhase_dz * c;
+    dD_dz.z = -QA * dir.y * dPhase_dz * s;
 }
 
 void main() {
-    // Parametri talasni
+    // Wave parameters
     float amplitude = u_waveHeight;
-    float speed = u_waveSpeed * 0.5;
+    float speed = u_waveSpeed;
     float steepness = u_waveSteepness;
     
-    // Primary wave direction (can be made uniform for directional waves)
+    // Wave directions
     vec2 waveDir1 = normalize(vec2(1.0, 0.5));
     vec2 waveDir2 = normalize(vec2(-0.7, 0.3));
     vec2 waveDir3 = normalize(vec2(0.3, -0.9));
     
-    // Position in wave space
-    vec2 pos = in_position.xz;
-    
-    // Gerstner wave function - creates characteristic wave peaks
-    vec3 gerstnerOffset = vec3(0.0);
-    
-    // First wave
-    float waveFactor1 = dot(waveDir1, pos) * 4.0 + u_time * speed;
-    float sinWave1 = sin(waveFactor1);
-    float cosWave1 = cos(waveFactor1);
-    
-    gerstnerOffset.y += amplitude * sinWave1;
-    
-    // Second wave
-    float waveFactor2 = dot(waveDir2, pos) * 6.0 + u_time * speed * 1.3;
-    float sinWave2 = sin(waveFactor2);
-    float cosWave2 = cos(waveFactor2);
+    // Initialize displacement and derivatives
+    vec3 position = in_position;
+    vec3 dD_dx = vec3(0.0);
+    vec3 dD_dz = vec3(0.0);
+    vec3 disp;
 
-    gerstnerOffset.y += amplitude * sinWave2 * 0.7;
+    // Accumulate wave contributions
+    vec3 dD1_dx, dD1_dz;
+    gerstnerWave(in_position.xz, waveDir1, amplitude, steepness, 4.0, speed, disp, dD1_dx, dD1_dz);
+    position += disp;
+    dD_dx += dD1_dx;
+    dD_dz += dD1_dz;
     
-    // Third wave
-    float waveFactor3 = dot(waveDir3, pos) * 8.0 + u_time * speed * 0.7;
-    float sinWave3 = sin(waveFactor3);
-    float cosWave3 = cos(waveFactor3);
-   
-    gerstnerOffset.y += amplitude * sinWave3 * 0.5;
+    vec3 dD2_dx, dD2_dz;
+    gerstnerWave(in_position.xz, waveDir2, amplitude * 0.7, steepness * 0.8, 6.0, speed * 1.3, disp, dD2_dx, dD2_dz);
+    position += disp;
+    dD_dx += dD2_dx;
+    dD_dz += dD2_dz;
     
-    // Add surface noise for realism
-    float noise = fBm(pos * 2.0 + u_time * 0.1, 4);
-    vec3 noiseOffset = vec3(0.0, noise * 0.05, 0.0);
+    vec3 dD3_dx, dD3_dz;
+    gerstnerWave(in_position.xz, waveDir3, amplitude * 0.5, steepness * 0.6, 8.0, speed * 0.7, disp, dD3_dx, dD3_dz);
+    position += disp;
+    dD_dx += dD3_dx;
+    dD_dz += dD3_dz;
+
+    // Calculate tangent and binormal vectors
+    vec3 tangent = vec3(1.0 + dD_dx.x, dD_dx.y, dD_dx.z);
+    vec3 binormal = vec3(dD_dz.x, dD_dz.y, 1.0 + dD_dz.z);
     
-    // Combine wave displacement
-    vec3 displacedPosition = in_position + gerstnerOffset + noiseOffset;
+    // Calculate normal from cross product
+    vec3 normal = normalize(cross(binormal, tangent));
     
-    gl_Position = u_mvp * vec4(displacedPosition, 1.0);
+    // Pass data to fragment shader
+    v_position = position;
+    v_normal = normal;
+    v_texCoord = in_texCoord;
+    
+    gl_Position = u_mvp * vec4(position, 1.0);
 }
