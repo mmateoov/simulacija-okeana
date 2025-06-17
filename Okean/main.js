@@ -48,7 +48,6 @@ async function main() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
-
     WebGLUtils.resizeCanvasToWindow(gl);
 
     // Camera setup
@@ -59,9 +58,9 @@ async function main() {
     const moveSpeed = 50;
     const worldSize = 1000;
 
-    // Grid data
-    const gridSize = 10;
-    const scale = 5;
+    // Generate grid plane
+    const gridSize = 100;
+    const scale = 50;
     const vertices = [];
     for (let z = 0; z < gridSize; z++) {
         for (let x = 0; x < gridSize; x++) {
@@ -130,9 +129,14 @@ async function main() {
 
     // Main shader program for grid
     const program = await WebGLUtils.createProgram(gl, "./vertex-shader.glsl", "./fargment-shader.glsl");
-
+    
+    
+  
+    
+    // Create VAO
     const VAO = gl.createVertexArray();
     gl.bindVertexArray(VAO);
+    
 
     const vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -161,13 +165,23 @@ async function main() {
     const waveSpeedLocation = gl.getUniformLocation(program, "u_waveSpeed");
     const waveSteepnessLocation = gl.getUniformLocation(program, "u_waveSteepness");
 
-    const waveHeight = 0.5;
+    const waveHeight = 0.1;
     const waveSpeed = 1;
-    const waveSteepness = 0.1;
+    const waveSteepness = 0.05;
 
-    gl.clearColor(0, 0, 0, 1);
+    const lightDirectionLocation = gl.getUniformLocation(program, "u_light_direction");
+    const lightColorLocation = gl.getUniformLocation(program, "u_light_color");
+    const ambientColorLocation = gl.getUniformLocation(program, "u_ambient_color");
 
+    const lightDir = vec3.fromValues(0.0, 5.0, 0.0); // Light direction
+    const lightColor = vec3.fromValues(1.0, 1.0, 1.0); // White light color
+    const ambientColor = vec3.fromValues(0.2, 0.2, 0.2); // Ambient light color
+    const cameraPositionLocation = gl.getUniformLocation(program, "u_cameraPosition");
+    vec3.normalize(lightDir, lightDir);
+
+    gl.clearColor(1.0, 0, 0, 0); // Blue background for visibility
     const startTime = performance.now();
+    
 
     const keyState = {};
     document.addEventListener('keydown', (e) => keyState[e.key] = true);
@@ -209,8 +223,9 @@ async function main() {
     let lastFrameTime = performance.now();
 
     function render() {
-        const currentTime = performance.now();
-        const deltaTime = (currentTime - lastFrameTime) / 1000;
+        let currentTime = performance.now();
+
+        let deltaTime = (currentTime - lastFrameTime) / 1000;
         lastFrameTime = currentTime;
 
         updateCamera(deltaTime);
@@ -243,6 +258,9 @@ async function main() {
         mat4.multiply(mvpMat, projectionMat, viewMat);
         mat4.multiply(mvpMat, mvpMat, modelMat);
 
+        // Clear with visible color
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clearColor(0.1, 0.1, 0.1, 1.0); // Dark background for contrast
         gl.useProgram(program);
 
         const elapsedTime = (currentTime - startTime) / 1000;
@@ -251,7 +269,12 @@ async function main() {
         gl.uniform1f(waveHeightLocation, waveHeight);
         gl.uniform1f(waveSpeedLocation, waveSpeed);
         gl.uniform1f(waveSteepnessLocation, waveSteepness);
-
+        gl.uniform3fv(lightDirectionLocation, lightDir);
+        gl.uniform3fv(lightColorLocation, lightColor);
+        gl.uniform3fv(ambientColorLocation, ambientColor);
+        gl.uniform3fv(cameraPositionLocation, cameraPosition);
+        
+        
         gl.bindVertexArray(VAO);
         gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
         gl.bindVertexArray(null);
